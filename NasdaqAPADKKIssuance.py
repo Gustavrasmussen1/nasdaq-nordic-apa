@@ -5,12 +5,12 @@ Created on Mon Dec 14 10:36:02 2020
 @author: GURA
 """
 
-import urllib.request
-import urllib.parse
+import urllib
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import datetime as dt
+import matplotlib.pyplot as plt
 
 today = dt.datetime.today().strftime('%Y-%m-%d')
 
@@ -23,7 +23,7 @@ headers['User-Agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/5
 
 
 data = {}
-data['FromDate'] = "2020-12-01"
+data['FromDate'] = "2020-09-01"
 data['ToDate'] = today
 data['SubSystem'] = "Prices"
 data['Action'] = "GetTrades"
@@ -43,3 +43,10 @@ response = requests.get(full_url, headers = headers)
 
 soup = BeautifulSoup(response.content,'xml')
 raw_df = pd.read_html(soup.prettify())[0]
+
+transactions = ["OTC-Primary Transaction","OTC-Loan Payment"]
+df = raw_df.loc[raw_df['Trade type'].isin(transactions)]
+
+df.set_index('Time', inplace=True)
+
+df = df[['Volume','Trade type']]
